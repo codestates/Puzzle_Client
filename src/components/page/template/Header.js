@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { withRouter } from "react-router-dom";
 import styled from 'styled-components';
 import axios from 'axios';
@@ -10,11 +10,11 @@ import Userinfo from '../template/Userinfo'
 
 export default withRouter(({ location: { pathname } }) => {
     const [showUserinfoModal, setShowUserinfoModal] = useState(false);
-    const [data,setData] = useState({})
+    const [data,setData] = useState({});
+    const [imageUrl, setImageUrl] = useState('');
     const accessToken = sessionStorage.getItem("accessToken");
-
-    const openUserinfoModal = () => {
-        setShowUserinfoModal(perv => !perv)
+    
+    useEffect(() => {
         axios
         .get('https://api.teampuzzle.ga:4000/user/userinfo',{
             headers:{
@@ -24,21 +24,35 @@ export default withRouter(({ location: { pathname } }) => {
             withCredentials: true
         })
         .then(res => {
-            const {data} = res.data
+            const {data} = res.data;
+            setImageUrl(data.profileImg)
             setData(data)
         })
+    }, [])
+    const openUserinfoModal = () => {
+        setShowUserinfoModal(perv => !perv)
+    }
+
+    const syncImageUrl = (url) => {
+        setImageUrl(url);
+        console.log(imageUrl)
     }
     return(
     <>
         <Puzzle_Header_Containers>
-            <Puzzle_Header_Logo></Puzzle_Header_Logo>
+            <Puzzle_Header_Logo />
             <Puzzle_Header_title>{pathname.replace('/', '').toUpperCase()}</Puzzle_Header_title>
-            <Puzzle_Header_Userinfo onClick={openUserinfoModal}></Puzzle_Header_Userinfo>
+            {
+                !imageUrl ?
+                    <Puzzle_Header_Userinfo onClick={openUserinfoModal}></Puzzle_Header_Userinfo>
+                :   <Profile_Image onClick={openUserinfoModal} src={imageUrl}/>
+            }
             <Userinfo
                 data={data}
                 showUserinfoModal={showUserinfoModal}
                 setShowUserinfoModal={setShowUserinfoModal}
-            ></Userinfo>
+                syncImageUrl={syncImageUrl}
+            />
         </Puzzle_Header_Containers>
     </>
 )});
@@ -47,23 +61,31 @@ export default withRouter(({ location: { pathname } }) => {
 
 const Puzzle_Header_Containers = styled.div`
     display: flex;
-    top: 0px;
+    justify-content: space-between;
+    align-items: center;
     width: 100%;
-    height: 200px;
+    height: 120px;
+    box-sizing: border-box;
+    padding: 2rem 5rem;
+    background: linear-gradient(to bottom, rgb(72, 25, 12, 0.5), rgb(25, 50, 77, 0.5));
+
+    border-bottom: rgb(127, 127, 127);
 `
 
 const Puzzle_Header_Logo = styled.div`
+    position: relative;
+    display: block;
+    top: 0.8rem;
     background-image: url('${Puzzle_logo}');
     background-repeat: no-repeat;
-    background-size: cover;
-    width: 80px;
-    height: 80px;
-    margin: 70px 0px 0px 100px;
+    background-size: 90px;
+    padding-bottom: 1.5rem;
+    width: 90px;
+    height: 90px;
 `
 
 const Puzzle_Header_title = styled.div`
     display: block;
-    margin: 70px auto;
     font-family: 'Roboto';
     font-style:normal;
     font-weight:700;
@@ -75,9 +97,19 @@ const Puzzle_Header_title = styled.div`
 `
 
 const Puzzle_Header_Userinfo = styled(UserCircle)`
-    width: 80px;
-    height: 80px;
-    margin: 65px 100px 0px 0px;
+    position: relative;
+    top: 0.3rem;
+    width: 70px;
+    height: 70px;
     color:white;
     cursor: pointer;
+`
+const Profile_Image = styled.img`
+    position: relative;
+    top: 0.3rem;
+    width: 70px;
+    height: 70px;
+    color:white;
+    cursor: pointer;
+    border-radius: 50%;
 `

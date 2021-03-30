@@ -6,8 +6,15 @@ import Img2 from '../../../../images/icon/puzzle_3x3.jpg'
 import { MdClose } from 'react-icons/md'
 import axios from 'axios'
 
-export const PuzzleSet = ({ showPuzzleSet, setShowPuzzleSet }) => {
+export const PuzzleSet = ({ showPuzzleSet, setShowPuzzleSet, projectInfo, percent, indexGenerator }) => {
   const modalRef = useRef()
+  const projectid = projectInfo.id
+  const [inputs, setInputs] = useState({
+    description: '',
+    title: '',
+    projectId: projectid
+  })
+  const accessToken = sessionStorage.getItem("accessToken");
 
   // const [currMem, setCurrMem] = useState(['김코딩'])
 
@@ -39,20 +46,112 @@ export const PuzzleSet = ({ showPuzzleSet, setShowPuzzleSet }) => {
     return () => document.removeEventListener('keydown', keyPress)
   }, [keyPress])
 
-  // const onSubmit = async e => {
-  //   e.preventDefault()
-  // }
   const onChange = e => {
-    const {
-      target: { name, value },
-    } = e
+    const { name, value } = e.target;
+    setInputs({
+      ...inputs,
+      [name]: value
+    })
+  }
 
-    if (name === 'name') {
-      setName(value)
+  const createPuzzle = () => {
+    if (inputs.description.length === 0) {
+      alert('퍼즐 내용을 입력해 주세요')
+      return;
+
     }
-    if (name === 'tel') {
-      setPhone(value)
+    if (inputs.title.length === 0 || inputs.title.length > 30) {//일이삼사오일이삼사오일이삼사오일이삼사오일이삼사오일이삼사오일이삼사오일이삼사오
+      alert('퍼즐 제목을 입력해주세요(1~40자)')
+      return;
     }
+    axios.post('https://api.teampuzzle.ga:4000/puzzle/create', {
+      ...inputs
+      }, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => {
+      if (res.data.data === "ok") {
+        alert('퍼즐이 등록되었습니다');
+      }
+    })
+    .then(res => {
+      axios.get(`https://api.teampuzzle.ga:4000/project/${projectid}`,{
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+      }
+      })
+      .then(res => {
+        const stringInfo = JSON.stringify(res.data);
+        sessionStorage.setItem('projectInfo', stringInfo);
+      })
+    })
+    .then(res => {
+      let projectInfo = JSON.parse(sessionStorage.getItem('projectInfo'))
+      const puzzlesInfo = projectInfo.project.puzzlesInfo;
+      const puzzleSum = puzzlesInfo.length;
+      const puzzleFinished = puzzlesInfo.filter(puzzle => {
+        if (puzzle.isFinish === 1) {
+          return true;
+        }
+        return false;
+      }).length
+      const newPercent = parseInt((puzzleFinished / puzzleSum) * 100)
+      console.log(newPercent)
+      //전체 퍼즐의 개수가 늘어나면서 그리드의 개수가 늘어난다(새로운 퍼즐은 isFinish ===0이니까)
+      //여기서 그리드 다시 렌더해야 한다(project/update/${projectId})
+      //1. 배열로 변환 2. 배열에 숫자 추가(몇개?: 퍼즐 하나 분량의 %: onePiecePercent)
+      //혹은 %와 동기화
+        //[1~100] 배열만들어서 percent만큼 배열에서 랜덤으로 제거
+      const coordinates = indexGenerator();
+      for (let i=0; i< newPercent; i++) {
+        coordinates.splice(Math.floor(Math.random() * coordinates.length), 1)[0];
+        console.log(coordinates)
+      }
+      axios.post(`https://api.teampuzzle.ga:4000/project/update/${projectid}`, {
+        coordinates: coordinates.toString(),
+        usercode: [],
+      }, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'  
+        }    
+      })
+      .then(res => {
+        console.log(res.data)
+      })
+    })
+    .then(res => {
+      axios.get(`https://api.teampuzzle.ga:4000/project/${projectid}`,{
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(res => {
+        console.log(res.data)
+        const stringInfo = JSON.stringify(res.data);
+        sessionStorage.setItem('projectInfo', stringInfo);
+      })
+      .then(res => {
+        setInputs({
+          description: '',
+          title: '',
+          projectId: projectid
+        });
+        setShowPuzzleSet(false);
+        let projectInfo = JSON.parse(sessionStorage.getItem('projectInfo'))
+          window.location.reload();
+        
+        //!왜 렌더하고 처음으로 생성하는 퍼즐은 새로고침이 필요할까?
+      })
+    })
+    
+    .catch(err => console.log(err));
+
   }
 
   return (
@@ -62,39 +161,19 @@ export const PuzzleSet = ({ showPuzzleSet, setShowPuzzleSet }) => {
           <animated.div style={animation}>
             <ModalWrapper showPuzzleSet={showPuzzleSet}>
               <Title>퍼즐 설정</Title>
-              <PuzzleImg />
-              <PuzzleSetContainer>
-                <PuzzleSetBox>
-                  <PuzzleImg2 />
-                  <PuzzleSize>3 X 3</PuzzleSize>
-                </PuzzleSetBox>
-                <PuzzleSetBox>
-                  <PuzzleImg2 />
-                  <PuzzleSize>4 X 4</PuzzleSize>
-                </PuzzleSetBox>
-                <PuzzleSetBox>
-                  <PuzzleImg2 />
-                  <PuzzleSize>5 X 5</PuzzleSize>
-                </PuzzleSetBox>
-                <PuzzleSetBox>
-                  <PuzzleImg2 />
-                  <PuzzleSize>6 X 6</PuzzleSize>
-                </PuzzleSetBox>
-                <PuzzleSetBox>
-                  <PuzzleImg2 />
-                  <PuzzleSize>7 X 7</PuzzleSize>
-                </PuzzleSetBox>
-                <PuzzleSetBox>
-                  <PuzzleImg2 />
-                  <PuzzleSize>8 X 8</PuzzleSize>
-                </PuzzleSetBox>
-              </PuzzleSetContainer>
+              <PuzzleContainer>
+                <TitleContainer>
+                  <PuzzleTitle placeholder="제목을 입력하세요(1~30자)" onChange={onChange} name="title"></PuzzleTitle>
+                </TitleContainer>
+                <DescContainer>
+                  <PuzzleDesc placeholder="작업 내용을 입력하세요" onChange={onChange} name="description"></PuzzleDesc>
+                </DescContainer>
+              </PuzzleContainer>
               <CloseModalButton
                 aria-label="Close modal"
                 onClick={() => setShowPuzzleSet(prev => !prev)}
               />
-              <ChangeImgbtn>사진변경</ChangeImgbtn>
-              <Confirmbtn onClick={() => setShowPuzzleSet(prev => !prev)}>
+              <Confirmbtn onClick={() => createPuzzle()}>
                 확인
               </Confirmbtn>
             </ModalWrapper>
@@ -109,17 +188,17 @@ const Background = styled.div`
   background: rgba(0, 0, 0, 0.5);
   border-radius: 10px;
   position: fixed;
-  left: 35%;
-  top: 30%;
+  left: 30%;
+  top: 15%;
+  z-index: 5;
 `
 
 const ModalWrapper = styled.div`
   width: 800px;
-  height: 700px;
+  height: 500px;
   box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
-  background: #052439;
+  background: rgb(25, 50, 77, 0.95);
   position: relative;
-  z-index: 10;
   border-radius: 10px;
   overflow-x: auto;
   overflow-y: scroll;
@@ -227,7 +306,8 @@ const ChangeImgbtn = styled.button`
 const Confirmbtn = styled.button`
   position: relative;
   top: 10px;
-  left: 250px;
+  left: 50%;
+  transform: translate(-50%);
   border-radius: 10px;
   border: none;
   background: #fa991d;
@@ -240,4 +320,47 @@ const Confirmbtn = styled.button`
   &:focus {
     outline: none;
   }
+`
+
+const PuzzleTitle = styled.input`
+  width: 40%;
+  height: 1.5em;
+  text-align: center;
+`
+
+const PuzzleDesc = styled.textarea`
+  width: 80%;
+  height: 20em;
+  resize: none;
+  white-space:pre;
+`
+
+const PuzzleContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`
+
+const TitleContainer = styled.div`
+  text-align: center;
+  justify-content: center;
+  /* border: 1px black solid; */
+
+
+`
+
+const DescContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  /* border: 1px white solid; */
+
+`
+
+const BorderLine = styled.div`
+  flex-grow: 1;
+  background: black;
+  height: 3px;
+  font-size: 0px;
+  line-height: 0px;
+  margin: 10px 16px;
+
 `

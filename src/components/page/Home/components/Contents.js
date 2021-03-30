@@ -1,29 +1,62 @@
-import React, { useState,useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import { useHistory } from 'react-router-dom'
 import { BiSearch } from 'react-icons/bi'
 import axios from 'axios'
+import arrow from '../../../../images/icon/icon-forward copy.svg'
+import backToHome from '../../../../images/icon/icon-backward.svg'
 
 import { NewProjectModal } from './NewProjectModal'
-// import {useHistory} from 'react-router-dom'
+import { ModifyProjectModal } from './ModifyProjectModal'
 
-const Contents = (projectData) => {
-  const history = useHistory()
-  const [showNewProject, setShowNewProject] = useState(false)
-  const [data, setData] = useState([])
-  let project = [];
-  let projectValue = [];
+// import {useHistory} from 'react-router-dom'
+const Contents = (props) => {
+  const history = useHistory();
+  const [showNewProject, setShowNewProject] = useState(false);
+  const [showModifyProject, setShowModifyProject] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showArrow, setShowArrow] = useState(true);
+  const [showHome, setShowHome] = useState(false)
+  const [projectId, setProjectId] = useState();
+  const [projectImage, setProjectImage] = useState('');
+  const [searchProject, setSearchProject] = useState('');
+  const [loginUserInfo, setLoginUserInfo] = useState({})
+  const searchInput = useRef();
+  const scroll = useRef();
   const accessToken = sessionStorage.getItem('accessToken')
+  console.log(props)
 
   const openProjectModal = () => {
-    setShowNewProject(prev => !prev)
-    // console.log('클릭')
+      setShowNewProject(prev => !prev)
+  }
+
+  const enterKey = () => {
+    if (window.event.keyCode === 13) {
+      findProject();
+    }
+  }
+
+  const findProject = () => {
+    axios
+      .post('https://api.teampuzzle.ga:4000/home/search', {
+        projectName: searchProject
+        }, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(res => {
+        let {projects} = res.data;
+        console.log(projects)
+        props.setProjectData(projects);
+      })
+      .catch(err => console.err(err))
+    setSearchProject('');
+    setShowHome(true);
   }
 
   const getProjectInfo = (projectId) => {
-    //1. axios로 project/:projectId GET 요청
-    //2. 받아온 데이터를 App 컴포넌트의 state에 저장
-
     axios
       .get(`https://api.teampuzzle.ga:4000/project/${projectId}`, {
         headers: {
@@ -32,43 +65,87 @@ const Contents = (projectData) => {
         }
       })
       .then(res => {
+        console.log('프로젝트 정보요청', res.data);
         const projectInfo = res.data;
         const stringInfo = JSON.stringify(projectInfo);
+        props.projectUp(res.data)
         sessionStorage.setItem('projectInfo', stringInfo);
-        const refreshInfo = JSON.parse(sessionStorage.getItem('projectInfo'));
-        projectData.projectUp(refreshInfo);
       })
       .then(res => history.push("/project"))
   }
-   // console.log(data)  //data는 프로젝트 정보와 그 프로젝트에 속한 팀원의 정보가 담긴 '배열'
+
+  const goToBottom = () => {
+    scroll.current.scrollTop = scroll.current.scrollHeight - scroll.current.clientHeight;
+    setShowArrow(false);
+  }
+
+  const handleScroll = () => {
+    if(scroll.current.scrollTop < scroll.current.scrollHeight - scroll.current.clientHeight){
+      setShowArrow(true);
+    }else if (scroll.current.scrollTop = scroll.current.scrollHeight - scroll.current.clientHeight) {
+      setShowArrow(false);
+    }
+  }
+
+  const handleDeleteModal = (projectId, e) => {
+    e.stopPropagation(); //버블링 방지
+    setProjectId(projectId);
+    setShowDeleteModal(prev => !prev);    
+  }
+
+  const modifyProject = (projectInfo, e) => {
+    e.stopPropagation();
+    setProjectId(projectInfo.id)
+    setProjectImage(projectInfo.projectImg)
+    setShowModifyProject(prev => !prev)
+  }
+  
+  const deleteProject = () => {
+    axios.delete(`https://api.teampuzzle.ga:4000/home/delete/${projectId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => {
+      window.location.reload();
+    })
+    .catch(err => console.log(err))
+  }
+
+  const refreshPage = () => {
+    window.location.reload();
+  }
   return (
     <>
       <Div className="row">
         <HomeNav>
+          {showHome && <RefreshHome src={backToHome} onClick={refreshPage}/>}
           <SearchBarBox>
             <SearchBar
               type="text"
               placeholder="프로젝트 이름을 입력하세요."
+              value={searchProject}
+              onChange={e => {
+                setSearchProject(e.target.value);
+                console.log(searchProject);
+              }}
+              onKeyUp={enterKey}
+              ref={searchInput}
             ></SearchBar>
-            <SerachButton />
+            <SerachButton onClick={findProject}/>
           </SearchBarBox>
-          <Select>
-            <option defaultValue>프로젝트 정렬</option>
-            <option>생성일</option>
-            <option>이름</option>
-          </Select>
           <CreateBtn onClick={openProjectModal}>새 프로젝트</CreateBtn>
-          {/* <CreateBtn onClick={() => history.push('./project')}></CreateBtn> */}
+
         </HomeNav>
-        <Div2>
-          {/* <button onClick={getProjectData}>테스트</button>
-          <button onClick={test}>테스트2</button> */}
+        <ProjectDivContainer ref={scroll} onScroll={handleScroll}>
           {
-            projectData.projectData.map(info => {
-              //console.log(info.usersData)
-              return (
-                <ProjectContainer key={info.id}>
-                  <Project onClick={() => getProjectInfo(info.id)}>
+            props.projectData.map(info => {
+/*               console.log(info.usersData[0].id) //프로젝트 생성자
+              console.log(loginUserInfo.data.id)
+ */              return (
+                <ProjectContainer key={info.id} onClick={() => getProjectInfo(info.id)}>
+                  <Project >
                     <ProjectUser_Containers >
                       {
                         info.usersData.map(profile => {
@@ -80,20 +157,42 @@ const Contents = (projectData) => {
                     </ProjectUser_Containers>
                     <ProjectTitle>{info.title}</ProjectTitle>
                     <ProjectImg src={info.projectImg} />
-                    <ProjectDesc>{info.description}</ProjectDesc>
+                    <ProjectDesc>{info.description.length > 15 ? info.description.slice(0, 15) + '...': info.description}</ProjectDesc>
                     <ProjectDate>생성일: {info.createdAt.slice(0, 10)}</ProjectDate> {/* 날짜 표기 형식에 맞게 변경해야함 */}
+                    <ButtonContainer>
+                      <ModifyButton onClick={(e) => modifyProject(info, e)}>수정</ModifyButton>
+                      {/* <DeleteButton onClick={(e) => handleDeleteModal(info.id, e)}>삭제</DeleteButton> */}
+                    </ButtonContainer>
                   </Project>
                 </ProjectContainer>
-                
               )
             })
           }
-        </Div2>
+        </ProjectDivContainer>
       </Div>
-      <NewProjectModal
+      {showArrow && <BottomArrow src={arrow} onClick={goToBottom} />}
+
+      <NewProjectModal  //프로젝트 생성용 모달
         showNewProject={showNewProject}
         setShowNewProject={setShowNewProject}
       />
+      <ModifyProjectModal  //프로젝트 수정용 모달
+        showModifyProject={showModifyProject}
+        setShowModifyProject={setShowModifyProject}
+        projectId={projectId}
+        projectImage={projectImage}
+      />
+      {
+        showDeleteModal ?
+        <DeleteModal>
+          <DeleteMainMessage>해당 프로젝트를 삭제하시겠습니까?</DeleteMainMessage>
+          <DeleteSubMessage>다른 팀원들이 있는 프로젝트라면 해당 프로젝트에서 탈퇴합니다.</DeleteSubMessage>
+          <DeleteBtnContainer>
+            <DeleteYesBtn onClick={deleteProject}>예</DeleteYesBtn>
+            <DeleteNoBtn onClick={() => {setShowDeleteModal(prev => !prev)}}>아니오</DeleteNoBtn>
+          </DeleteBtnContainer>
+        </DeleteModal> : null
+      }
     </>
   )
 }
@@ -103,21 +202,38 @@ export default Contents
 // <------------ css ------------> //
 
 const Div = styled.div`
-  width: 100%;
-  min-height: 100%;
-  overflow: auto;
-  // background-color: red;
-  margin: 1rem;
-`
-
-const Div2 = styled.div`
   position: relative;
+  left: 1rem;
+  background-color: rgb(25, 50, 77, 0.5);
+  width: calc(100vw - 500px);
+  height: 75vh;
+  border: 0px solid black;
+  border-radius: 16px;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  top: 1.5rem;
+  /* border: 2px white solid; */
+`
+const ProjectDivContainer = styled.div`
+  position: relative;
+  top: 0em;
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
-  justify-content: space-between;
-  margin-left: 1.2rem;
-  width: calc(100vw - 500px);
+  justify-content: flex-start;
+  align-content: left;
+  width: 100%;
+  height: 40.5em;
+  margin-top: 2rem;
+  box-sizing: border-box;
+  padding: 0rem 3rem 3rem 0rem;
+  /* border: 1px black solid; */
+  overflow: scroll;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  /* border: 2px solid white; */
+
 `
 
 const HomeNav = styled.div`
@@ -127,6 +243,7 @@ const HomeNav = styled.div`
   width: 73vw;
   float: right;
   margin-right: 1rem;
+  margin-top: 1rem;
 `
 const SearchBarBox = styled.span`
   background-color: #afafaf;
@@ -140,9 +257,15 @@ const SearchBarBox = styled.span`
   margin-right: 1rem;
 `
 
+const RefreshHome = styled.img`
+  position: absolute;
+  left: 1em;
+  top: 0em;
+  cursor: pointer;
+`
+
 const SearchBar = styled.input`
   border: transparent;
-  padding: 7.5px;
   background-color: transparent;
   width: 10vw;
   &:focus {
@@ -150,34 +273,13 @@ const SearchBar = styled.input`
   }
   &::placeholder {
     color: #052439;
-    text-align: center;
+    text-align: left;
   }
   font-size: 14px;
+  margin-left: 1rem;
+
 `
 
-const Select = styled.select`
-  width: 7vw;
-  height: 41px;
-  background: #565656;
-  border-radius: 50px;
-  color: white;
-  padding-left: 10px;
-  font-size: 14px;
-  border: none;
-  margin-right: 10px;
-  &:focus {
-    outline: none;
-  }
-  option {
-    color: black;
-    width: 5vw;
-    background: white;
-    display: flex;
-    white-space: pre;
-    min-height: 20px;
-    padding: 0px 2px 1px;
-  }
-`
 const CreateBtn = styled.button`
   background: #565656;
   border-radius: 30px;
@@ -191,23 +293,23 @@ const CreateBtn = styled.button`
   border: transparent;
 `
 const ProjectContainer = styled.div`
-  // border: 3px solid #73AD21;
+  /* border: 3px solid #73AD21; */
   cursor: pointer;
-  position: sticky;
+  position: relative;
+  left: 5em;
   display: flex;
-  height: 20rem;
-  width: 20rem;
-  margin-top: 1rem;
+  height: 20em;
+
   `
 
 const Project = styled.span`
   border-radius: 13px;
-  background-color: white;
+  background-color: whitesmoke;
   background-size: cover;
-  width: 15vw;
-  height: 30vh;
+  width: 18em;
+  height: 17.5em;
   margin: 10px;
-  position: reletive
+  position: reletive;
   cursor: pointer;
 `
 const ProjectImg = styled.img`
@@ -255,21 +357,194 @@ const SerachButton = styled(BiSearch)`
 `
 
 const ProjectUser_Containers = styled.span`
-  border-radius: 13px 13px 0px 0px;
+  border-radius: 10px 10px 0px 0px;
   width: 100%;
   height: 35px;
-  background-color: rgb(103, 145, 182);;
+  background-color: #3c556d;
   display: flex;
   justify-content: flex-end;
 `
 
 const ProjectUser_img = styled.img`
-width: 28px;
-height: 28px;
-object-fit: cover;
-background-color:blue;
-border-radius: 70%;
-margin-top: 3px;
-margin-left: 3px;
-margin-right: 5px;
+  width: 28px;
+  height: 28px;
+  object-fit: cover;
+  background-color:blue;
+  border-radius: 70%;
+  margin-top: 3px;
+  margin-left: 3px;
+  margin-right: 5px;
+`
+
+const BottomArrow = styled.img`
+  position: fixed;
+  bottom: 10%;
+  left: 52%;
+  border: 0px solid white;
+  transform: rotate(90deg);
+  cursor: pointer;
+
+`
+
+const ButtonContainer = styled.div`
+  display: flex;
+  position: absolute;
+  bottom: 11%;
+  right: 5%;
+  justify-content: flex-end;
+`
+
+const ModifyButton = styled.button`
+  display: inline-flex;
+  outline: none;
+  border: none;
+  border-radius: 4px;
+  color: black;
+  cursor: pointer;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+
+  /* 크기 */
+  height: 1.25rem;
+  font-size: 0.7rem;
+
+  /* 색상 */
+  background: whitesmoke;
+  &:hover {
+    background: grey;
+  }
+  &:active {
+    background: #2b4257;
+  }
+
+  /* 기타 */
+  & + & {
+    margin-left: 1rem;
+  }
+
+`
+
+const DeleteButton = styled.button`
+  display: inline-flex;
+  outline: none;
+  border: none;
+  border-radius: 4px;
+  color: black;
+  cursor: pointer;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+
+  /* 크기 */
+  height: 1.25rem;
+  font-size: 0.7rem;
+
+  /* 색상 */
+  background: whitesmoke;
+  &:hover {
+    background: grey;
+  }
+  &:active {
+    background: #2b4257;
+  }
+
+  /* 기타 */
+  & + & {
+    margin-left: 1rem;
+  }
+`
+
+const DeleteModal = styled.div`
+  background-color: whitesmoke;
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  padding: 1em;
+  border-radius: 15px;
+  box-shadow: 1px -1px 5px black;
+`
+
+const DeleteMessageContainer = styled.div`
+
+`
+const DeleteMainMessage = styled.div`
+  font-size: 1.2em;
+  margin-bottom: 0.3em;
+`
+
+const DeleteSubMessage = styled.div`
+  font-style: italic;
+  font-size: 1em;
+  color: grey;
+
+`
+
+const DeleteBtnContainer = styled.div`
+  display: flex;
+  justify-content: space-around;
+  padding: 1em 1em 0.5em;
+`
+
+const DeleteYesBtn = styled.button`
+  /* 공통 스타일 */
+  display: inline-flex;
+  outline: none;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  padding-left: 1rem;
+  padding-right: 1rem;
+
+  /* 크기 */
+  height: 2rem;
+  font-size: 1.2rem;
+
+  /* 색상 */
+  background: #d96602;
+  &:hover {
+    background: #e69b5a;
+  }
+  &:active {
+    background: #a36c3b;
+  }
+
+  /* 기타 */
+  & + & {
+    margin-left: 1rem;
+  }
+`
+
+const DeleteNoBtn = styled.button`
+  /* 공통 스타일 */
+  display: inline-flex;
+  outline: none;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  padding-left: 1rem;
+  padding-right: 1rem;
+
+  /* 크기 */
+  height: 2rem;
+  font-size: 1.2rem;
+
+  /* 색상 */
+  background: #3c556d;
+  &:hover {
+    background: #4978a3;
+  }
+  &:active {
+    background: #2b4257;
+  }
+
+  /* 기타 */
+  & + & {
+    margin-left: 1rem;
+  }
+
 `

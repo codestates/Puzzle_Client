@@ -1,4 +1,6 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react'
+import { useHistory } from 'react-router-dom'
+
 import styled from 'styled-components'
 import axios from 'axios';
 
@@ -7,7 +9,8 @@ import { Camera } from '@styled-icons/fa-solid/Camera'
 
 import PasswrodChange from './PasswordChange'
 
-const Userinfo = ({ data, showUserinfoModal, setShowUserinfoModal }) => {
+const Userinfo = ({ data, showUserinfoModal, setShowUserinfoModal, syncImageUrl }) => {
+  const history = useHistory()
 
   const viewemail = data.email;
   const viewname = data.name;
@@ -27,6 +30,7 @@ const Userinfo = ({ data, showUserinfoModal, setShowUserinfoModal }) => {
 
   const modalRef = useRef()
 
+  
   const onChangeModifyName = e => {
     const {
       target: { name, value },
@@ -65,7 +69,7 @@ const Userinfo = ({ data, showUserinfoModal, setShowUserinfoModal }) => {
       }
     })
     .then(res => {
-      setprofileImg(res.data.url)
+      setprofileImg(res.data.url)      
     })
   }
 
@@ -103,6 +107,23 @@ const Userinfo = ({ data, showUserinfoModal, setShowUserinfoModal }) => {
     e.preventDefault()
   } //새로고침 방지
 
+  const logoutHandler = () => {
+    console.log('logout!')
+    axios.get('https://api.teampuzzle.ga:4000/user/logout', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => {
+      sessionStorage.clear();
+      history.push("/");
+    })
+    //로그아웃 요청
+    //세션 스토리지 비우기(sessionStorage.clear())
+    //루트 엔드포인트로 이동(history.push("/"))
+
+  }
   return (
     <>
       {showUserinfoModal ? (
@@ -112,15 +133,17 @@ const Userinfo = ({ data, showUserinfoModal, setShowUserinfoModal }) => {
               <Profile_Header_Containers>
                 <Profile_Header_Title>계정 정보</Profile_Header_Title>
                 <CloseModalButton
-                  onClick={() => setShowUserinfoModal(prev => !prev)}
+                  onClick={() => {
+                    setShowUserinfoModal(prev => !prev);
+                    window.location.reload();
+                  }}
                 />
               </Profile_Header_Containers>
               <Profile_Img_Containers>
-                <Profile_Img src={profileImg === undefined ? viewprofileImg : profileImg} alt='profileImg'>
-                </Profile_Img>
+                <Profile_Img src={profileImg === undefined ? viewprofileImg : profileImg} alt='profileImg' />
                 <Profile_Img_Select_Containers>
                   <label htmlFor="Profile_Img_Select">
-                    <Profile_Img_Select></Profile_Img_Select>
+                    <Profile_Img_Select />
                   </label>
                   <Profile_Img_Uploader type="file" name="image" id="Profile_Img_Select" onChange={postprofileimg} accept="image/jpg,impge/png,image/jpeg,image/gif"></Profile_Img_Uploader>
                 </Profile_Img_Select_Containers>
@@ -164,16 +187,13 @@ const Userinfo = ({ data, showUserinfoModal, setShowUserinfoModal }) => {
 
                     <Profile_Content_Text_Containers>
                       <Profile_Content_Text>비밀번호</Profile_Content_Text>
+                      <Profile_Password_Change onClick={openPasswrodChange}>변경</Profile_Password_Change>
                     </Profile_Content_Text_Containers>
-                    <Profile_Password_Change onClick={openPasswrodChange}>비밀번호 변경</Profile_Password_Change>
                   </Profile_Content_Inside_Containers>
+                  <LogOutBtn onClick={logoutHandler}>로그아웃</LogOutBtn>
+
                 </form>
               </Profile_Content_Containers>
-              {/* <Profile_submit_Containers>
-                <Profile_submit_Inside_Containers>
-                  <Profile_submit onClick={() => setShowUserinfoModal(prev => !prev)} > 계정 정보 저장하기 </Profile_submit>
-                </Profile_submit_Inside_Containers>
-              </Profile_submit_Containers> */}
             </ModalWrapper>
           </Background>
           <PasswrodChange
@@ -194,6 +214,8 @@ const Background = styled.div`
   height: 100vh;
   background: rgba(0, 0, 0, 0.5);
   position: fixed;
+  top: 0rem;
+  left: 0rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -205,7 +227,7 @@ const ModalWrapper = styled.div`
   width: 500px;
   height: 800px;
   box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
-  background: #052439;
+  background: rgba(5, 36, 57, 0.97);
   color: #000;
   position: relative;
   z-index: 10;
@@ -233,6 +255,8 @@ const CloseModalButton = styled(Close)`
   cursor: pointer;
   width: 32px;
   height: 32px;
+  position: relative;
+  left: 0.8rem;
   z-index: 10;
   color:white;
   margin: 0 0 0 150px;
@@ -251,8 +275,8 @@ const Profile_Img_Containers = styled.div`
 
 const Profile_Img = styled.img`
   display:felx;
-  height: 100px;
-  width: 100px;
+  height: 8rem;
+  width: 8rem;
   border-radius: 50%;
   object-fit: cover;
 `
@@ -262,7 +286,8 @@ const Profile_Img_Select_Containers = styled.div`
   display:felx;
   height: 34px;
   width: 34px;
-  bottom: 0px;
+  top: 5rem;
+  left: 13rem;
   margin-left: 60px;
   border-radius: 50%;
   background-color: white;
@@ -286,6 +311,7 @@ const Profile_Img_Uploader = styled.input`
   overflow: hidden;
   clip:rect(0,0,0,0);
   border: 0;
+
 `
 
 const Profile_Content_Containers = styled.div`
@@ -303,6 +329,7 @@ const Profile_Content_Inside_Containers = styled.div`
   height: 100%;
 `
 const Profile_Content_Text_Containers = styled.div`
+  display: flex;
   width:100%;
   height: 25px;
 `
@@ -311,6 +338,8 @@ const Profile_Content_Text_Edit = styled.span`
   color:white;
   margin-left: 2px;
   cursor: pointer;
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
 `
 
 const Profile_Content_Text = styled.strong`
@@ -319,7 +348,8 @@ const Profile_Content_Text = styled.strong`
   font-weight: 700;
   font-size: 1.2em;
   margin-bottom: 12px;
-  color:white;
+  color: #4c57ba;
+  text-shadow: 1px 0 #000, 0 1px #000, 1px 0 #000, 0 -1px #000;
 `
 
 const Profile_Content_Value = styled.span`
@@ -371,42 +401,11 @@ const Profile_Content_Change_btn = styled.button`
 `
 
 const Profile_Password_Change = styled.button`
-width: 100%;
-height: 25px;
-cursor: pointer;
-border-radius: 5px;
-border: none;
-font-family: 'Roboto';
-font-style: normal;
-font-weight: 500;
-font-size: 1em;
-color: white;
-outline: none;
-background-color:#FA991D;
-
-&:hover {
-    color: #111;
-}
-`
-
-const Profile_submit_Containers = styled.div`
-  width: 100%;
-  height: 90px;
-  display: flex;
-  justify-content: center;
-`
-
-const Profile_submit_Inside_Containers = styled.div`
-  display: flex;
-  width: 250px;
-  height: 100%;
-  justify-content: center;
-  align-items: center;
-`
-
-const Profile_submit = styled.button`
-  width: 100%;
-  height: 40px;
+  position: relative;
+  left: 0.5rem;
+  top: -0.2rem; 
+  width: 3rem;
+  height: 25px;
   cursor: pointer;
   border-radius: 5px;
   border: none;
@@ -414,11 +413,30 @@ const Profile_submit = styled.button`
   font-style: normal;
   font-weight: 500;
   font-size: 1em;
-  color: #111;
+  color: white;
   outline: none;
   background-color:#FA991D;
 
   &:hover {
-      color: white;
+      color: #111;
   }
+`
+
+const LogOutBtn = styled.button`
+  background: #fa991d;
+  color: white;
+  width: 100%;
+  height: 50px;
+  margin: 0 auto;
+  font-size: 1.1rem;
+  float: left;
+  display: block;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  &:active,
+  &:focus {
+    outline: none;
+  }
+
 `

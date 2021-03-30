@@ -5,7 +5,7 @@ import Img from '../../../../images/icon/img.jpg'
 import { MdClose } from 'react-icons/md'
 import axios from 'axios'
 
-export const NewProjectModal = ({ showNewProject, setShowNewProject }) => {
+export const ModifyProjectModal = ({ showModifyProject, setShowModifyProject, projectId, projectImage }) => {
   const modalRef = useRef()
   const [usercode, setUsercode] = useState('')
   const [projectInfo, setProjectInfo] = useState({
@@ -13,7 +13,7 @@ export const NewProjectModal = ({ showNewProject, setShowNewProject }) => {
     title: '',
     usercode: [],
     imageUrl: '',
-    coordinates: '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100'
+    coordinates: ''
   })//coordinates 기본값
   const accessToken = sessionStorage.getItem('accessToken')
 
@@ -21,23 +21,23 @@ export const NewProjectModal = ({ showNewProject, setShowNewProject }) => {
     config: {
       duration: 250,
     },
-    opacity: showNewProject ? 1 : 0,
-    transform: showNewProject ? `translateY(0%)` : `translateY(-100%)`,
+    opacity: showModifyProject ? 1 : 0,
+    transform: showModifyProject ? `translateY(0%)` : `translateY(-100%)`,
   })
 
   const closeModal = e => {
     if (modalRef.current === e.target) {
-      setShowNewProject(false)
+      setShowModifyProject(false)
     }
   }
 
   const keyPress = useCallback(
     e => {
-      if (e.key === 'Escape' && showNewProject) {
-        setShowNewProject(false)
+      if (e.key === 'Escape' && showModifyProject) {
+        setShowModifyProject(false)
       }
     },
-    [setShowNewProject, showNewProject]
+    [setShowModifyProject, showModifyProject]
   )
 
   useEffect(() => {
@@ -80,8 +80,6 @@ export const NewProjectModal = ({ showNewProject, setShowNewProject }) => {
       usercode: projectInfo.usercode.concat(newUserCode)
     });
     setUsercode('');
-    console.log(usercode)
-
     console.log(projectInfo.usercode)
   }
 
@@ -98,7 +96,8 @@ export const NewProjectModal = ({ showNewProject, setShowNewProject }) => {
     }
   }
 
-  const createProject = (projectInfo) => {
+  const modifyProject = (projectInfo) => {
+    console.log(projectInfo)
     //유효성 검사
     if (projectInfo.title.length === 0 || projectInfo.title.length > 30) {
       alert('프로젝트 이름을 입력하지 않았거나 너무 긴 이름입니다.');
@@ -115,7 +114,7 @@ export const NewProjectModal = ({ showNewProject, setShowNewProject }) => {
       return;
     }
     axios.
-      post('https://api.teampuzzle.ga:4000/home/create', 
+      post(`https://api.teampuzzle.ga:4000/project/update/${projectId}`, 
         projectInfo, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -125,12 +124,11 @@ export const NewProjectModal = ({ showNewProject, setShowNewProject }) => {
       )
       .then(res => {
         console.log(res);
-        alert('프로젝트가 생성되었습니다.')
-        setShowNewProject(prev => !prev)
+        alert('프로젝트 업데이트 성공')
+        setShowModifyProject(prev => !prev)
         window.location.reload();
-
       })
-      .catch(err => console.err(err));
+      .catch(err => console.log(err));
   }
 
   const UploadImg = (e) => {
@@ -147,20 +145,21 @@ export const NewProjectModal = ({ showNewProject, setShowNewProject }) => {
         ...projectInfo,
         imageUrl: res.data.url
       })
+      console.log(projectInfo)
     })
     .catch(err => console.err(err))
   }
 
   return (
     <>
-      {showNewProject ? (
+      {showModifyProject ? (
         <Background onClick={closeModal} ref={modalRef}>
 
           <animated.div style={animation}>
-            <ModalWrapper showNewProject={showNewProject}>
-              <Title>프로젝트 생성</Title>
+            <ModalWrapper showModifyProject={showModifyProject}>
+              <Title>프로젝트 수정</Title>
               <ImageContainer >
-                <ProjectListImg src={projectInfo.imageUrl} onError="this.style.display='none'"/>
+                <ProjectListImg src={projectInfo.imageUrl === '' ? projectImage : projectInfo.imageUrl}/>
                   <ImageLabel htmlFor="Project_Img_Select">
                     프로젝트 이미지 업로드
                   </ImageLabel>
@@ -187,7 +186,7 @@ export const NewProjectModal = ({ showNewProject, setShowNewProject }) => {
                     onChange={onChangeMember}
                     name="usercode"
                     type="text"
-                    placeholder="Usercode를 입력해주세요(8자, optional)"
+                    placeholder="Usercode를 입력해주세요(8자) "
                     value={usercode}
                   />
                   <AddMemberbtn onClick={handleMember} >멤버 추가</AddMemberbtn>
@@ -210,19 +209,19 @@ export const NewProjectModal = ({ showNewProject, setShowNewProject }) => {
                 aria-label="Close modal"
                 onClick={() => {
                   console.log('close modal')
-                  setShowNewProject(prev => !prev);
+                  setShowModifyProject(prev => !prev)
                   setProjectInfo({
                     description: '',
                     title: '',
                     usercode: [],
-                    projectImg: '',
-                    coordinates: '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100'
+                    imageUrl: '',
+                    coordinates: ''                
                   })
                 }}
               />
             </ModalWrapper>
           </animated.div>
-          <CreateProjectbtn onClick={() => {createProject(projectInfo)}}>프로젝트 생성</CreateProjectbtn>
+          <CreateProjectbtn onClick={() => {modifyProject(projectInfo)}}>프로젝트 수정</CreateProjectbtn>
         </Background>
       ) : null}
     </>
@@ -269,6 +268,9 @@ const CloseModalButton = styled(MdClose)`
   /* border: 1px solid red; */
 `
 
+const Project_Img_Select = styled.button`
+  text-align: center;
+`
 
 const UploadProjectImg = styled.input`
   width: 1px; 
@@ -321,6 +323,23 @@ const ProjectListImg = styled.img`
   margin: 0 auto;
   border: 0px solid black;
 `
+const StyledAlwaysScrollSection = styled.div`
+  overflow: scroll;
+  &::-webkit-scrollbar {
+    /* 세로 스크롤 넓이 */
+    width: 8px;
+
+    /* 가로 스크롤 높이 */
+    height: 8px;
+
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.4);
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+  }
+`
 const ProjectInfo = styled.input`
   background-color: transparent;
   border: transparent;
@@ -356,8 +375,7 @@ const AddMemberInfo = styled.input`
   top: 6.5em;
   left: 6.5em;
   height: 1.3rem;
-  width: 20em;
-  text-align: center;
+  width: 12vw;
   /* border: blue solid 1px; */
   overflow: hidden;
 

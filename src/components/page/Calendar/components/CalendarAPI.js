@@ -152,10 +152,14 @@ export default CalendarAPI;
 // <------------ css ------------> //
 
 const Calendar_Containers = styled.div`
-    width: calc(100vw - 500px);
+    position: relative;
+    top: 3em;
     height: 100%;
     display:flex;
-    min-height:1100px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 0 6.5em 0 0;
 `
 
 const Calendar_Year_Month_Containers = styled.div`
@@ -240,13 +244,15 @@ const Calendar_Day_Containers = styled.div`
 
 const Calendar_Day_Inside_Containers = styled.div`
     width: 100%;
-    height: 90%;
+    height: 100%;
 `
 
 const Calendar_Days_Title_Containers = styled.div`
     width: 100%;
-    height: 100px;
     display:flex;
+    font-size: 0.5em;
+    box-sizing: border-box;
+    padding: 1em 2em 2em;
     justify-content: center;
     align-items: center;
 `
@@ -260,8 +266,8 @@ const Calendar_Days_Title = styled.span`
 
 const Calendar_Days_Text_Containers = styled.div`
     width:100%;
-    height:80px;
-    display:flex;
+    height: 0.5em;
+    display: flex;
     justify-content: center;
     align-items: center;
     justify-content: space-around;
@@ -280,8 +286,7 @@ const Calendar_Day_Body_Containers = styled.div`
     height:700px;
     display:flex;
     flex-flow: row wrap;
-    justify-content: center;
-    justify-content: space-around;
+    align-content: space-around;
 `
 
 const Calendar_Day_Text_Containers = styled.div`

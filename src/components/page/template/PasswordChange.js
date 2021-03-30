@@ -141,13 +141,16 @@ export default PasswordChange;
 // <------------ css ------------> //
 
 const Background = styled.div`
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);
+    width: 25rem;
+    height: 2rem;
     position: fixed;
+    top: 50%;
+    right: 50%;
+    transform: translate(80%);
     display: flex;
     justify-content: center;
     align-items: center;
+    border-radius: 15px;
     z-index: 5;
 `
 
@@ -155,38 +158,40 @@ const ModalWrapper = styled.div`
     width: 600px;
     height: 400px;
     box-shadow: 0 5px 16px rgba(0, 0, 0, 0.2);
-    background: #0F3046;
+    background: rgba(5, 36, 57, 0.97);
     color: #000;
     position: relative;
-    z-index: 10;
+    right: 8rem;
+    border: 1px black grey;
     border-radius: 10px;
 `
 
 const Password_Header_Containers = styled.div`
-  display: flex;
-  width:100%;
-  height:60px;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    width:100%;
+    height:60px;
+    justify-content: center;
+    align-items: center;
 `
 
 const Password_Header_Title = styled.div`
-  margin-left: 220px;
-  font-family: 'Roboto';
-  font-style: normal;
-  font-weight: 700;
-  font-size: 1.3em;
-  color: white;
+    margin-left: 220px;
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 1.3em;
+    color: white;
+    width: 8rem;
 `
 
 const CloseModalButton = styled(Close)`
-  cursor: pointer;
-  width: 32px;
-  height: 32px;
-  z-index: 10;
-  color:white;
-  margin: 0 0 0 180px;
-  &:hover{ color: #FA991D};
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    z-index: 10;
+    color:white;
+    margin: 0 0 0 180px;
+    &:hover{ color: #FA991D};
 `
 const Password_Change_Containers = styled.div`
     display:flex;
@@ -227,7 +232,7 @@ const Password_Input = styled.input.attrs({
 
     &::placeholder {
         color: #ddd;
-      }
+    }
 `
 
 const Passwrod_Change_btn_Containers = styled.div`

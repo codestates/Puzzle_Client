@@ -8,17 +8,17 @@ import axios from 'axios'
 import ReactLoading from 'react-loading';
 
 
+
 import Contents from './components/Contents'
 
 import background_img from '../../../images/background/background.jpg'
 
 const Home = (props) => {
 
-  const [projectData,setProjectData] = useState({});
-  const [loading,setLoading] = useState(true);
+  const [projectData, setProjectData] = useState(() => JSON.parse(window.localStorage.getItem("projectData")) || [] );
+  const [loading, setLoading] = useState(true);
 
   const accessToken = sessionStorage.getItem('accessToken')
-
   useEffect(() => {
     axios.get('https://api.teampuzzle.ga:4000/home',{
       headers: {
@@ -28,30 +28,35 @@ const Home = (props) => {
     })
     .then(res => {
       let {projects} = res.data;
-      setProjectData(projects);
+      setProjectData(projects)
       setLoading(false);
+      console.log(projects)
     })
     .catch(err => console.err(err))
+  }, [])
 
-  },[])
   return (
     <Background>
       <Backgroundgradient>
-        <Home_Header></Home_Header>
+        <Home_Header />
         <Calendar_Content_Containers>
-          <Home_SideBar_Left></Home_SideBar_Left>
+          <Sidebar_Container>
+            <Home_SideBar_Left />
+          </Sidebar_Container>
           {loading ? (
               <LoadingContainer>
                 <Loading>
                   <ReactLoading height={'10%'} width={'10%'} type={'spin'}/>
                 </Loading>
-              </ LoadingContainer>
+              </LoadingContainer>
           ) : (
-            <Contents projectData = {projectData} projectUp={props.projectUp} />
+            <Contents projectData = {projectData} setProjectData={setProjectData} projectUp={props.projectUp} />
           )}
-          <Home_SideBar_Right></Home_SideBar_Right>
+          <Sidebar_Right_Container>
+            <Home_SideBar_Right />
+          </Sidebar_Right_Container>
         </Calendar_Content_Containers>
-        <Home_Footer></Home_Footer>
+        <Home_Footer />
       </Backgroundgradient>
     </Background>
   )
@@ -73,6 +78,7 @@ const Background = styled.div`
     width: 500px;
     height: 500px;
   }
+  z-index: 2;
 `
 const Backgroundgradient = styled.div`
   background-repeat: no-repeat;
@@ -80,24 +86,33 @@ const Backgroundgradient = styled.div`
   background-size: cover;
   height: 100vh;
   width: 100wh;
+  
 `
 
 const Calendar_Content_Containers = styled.div`
-  width: 100%;
+  width: 100vw;
   height: calc(100vh - 280px);
   display: flex;
 `
-const LoadingContainer = styled.div`
-  width: 100%;
-  min-height: 100%;
-  overflow: auto;
-  margin: 1rem;
 
+const Sidebar_Container = styled.div`
+  
+`
+const Sidebar_Right_Container = styled.div`
+  position: relative;
+  right: 0.3rem;
+  width: 11rem;
+`
+
+const LoadingContainer = styled.div`
+  width: 70%;
+  min-height: 100%;
+  margin-left: 5rem;
   `
 
 const Loading = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 10rem;
+  margin-top: 15rem;
 `
