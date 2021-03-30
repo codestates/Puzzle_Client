@@ -13,16 +13,22 @@ import background_img from '../../../images/background/background.jpg'
 const Project = (props) => {
   const projectInfo = props.projectInfo
   const projectUp = props.projectUp
+  const refreshInfo = JSON.parse(sessionStorage.getItem('projectInfo'))
+
   return (
     <Background>
       <Backgroundgradient>
-        <Project_Header></Project_Header>
+        <Project_Header /> 
         <Calendar_Content_Containers>
-          <Project_SideBar_Left></Project_SideBar_Left>
+          <Project_SideBar_Left />
           <ProjectContent projectInfo={projectInfo} projectUp={projectUp}></ProjectContent>
-          <Project_SideBar_Right></Project_SideBar_Right>
+          <Right_Sidebar_Container>
+            <Project_SideBar_Right />
+        </Right_Sidebar_Container>
+
         </Calendar_Content_Containers>
-        <Project_Footer></Project_Footer>
+
+        <Project_Footer />
       </Backgroundgradient>
     </Background>
   )
@@ -57,4 +63,8 @@ const Calendar_Content_Containers = styled.div`
   width: 100%;
   height: calc(100vh - 280px);
   display: flex;
+`
+const Right_Sidebar_Container = styled.div`
+  position: relative;
+  right: 0px;
 `

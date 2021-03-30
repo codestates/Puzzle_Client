@@ -17,7 +17,7 @@ export default withRouter(({ location: { pathname } }) => (
 // <------------ css ------------> //
 
 const Puzzle_SideBar_Containers_right = styled.div`
-    display: flex;
+    display: block;
     height:calc(100vh - 280px);
     flex-direction: column;
     align-items: center;

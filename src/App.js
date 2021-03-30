@@ -20,7 +20,7 @@ const App = () => {
   
   return (
     <ThemeProvider theme={theme}>
-      <GlobalStyles></GlobalStyles>
+      <GlobalStyles />
       <Router>
         <Switch>
           <Route exact path="/" component={Landing}></Route>

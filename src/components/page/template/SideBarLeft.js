@@ -13,11 +13,7 @@ export default withRouter(({ location: { pathname}}) => {
                 </Puzzle_SideBar_category_li>
 
                 <Puzzle_SideBar_category_li>
-                    <SLink current={pathname === "/project" ? 'true' : 'false'} to="/project"> PROJECT </SLink>
-                </Puzzle_SideBar_category_li>
-
-                <Puzzle_SideBar_category_li>
-                    <SLink current={pathname === "/puzzle" ? 'true' : 'false'} to="/puzzle"> PUZZLE </SLink>
+                    <SLink current={pathname === "/project" ? 'true' : 'false'} to="/project"> CURRENT<br/> PROJECT</SLink>
                 </Puzzle_SideBar_category_li>
 
                 <Puzzle_SideBar_category_li>
@@ -31,17 +27,23 @@ export default withRouter(({ location: { pathname}}) => {
 // <------------ css ------------> //
 const Puzzle_SideBar_Containers_left = styled.div`
     display: flex;
+    align-items: center;
     width: 300px;
-    height:calc(100vh - 280px);
+    height:calc(100vh - 200px);
     float:left;
+    bacground-color: rgb(60,85,109,0.5);
 `
 
 const Puzzle_SideBar_category_ul = styled.ul`
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
-    margin: 0 0 0 5em;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 auto;
     height: 300px;
+    box-sizing: border-box;
+    padding: 1rem 1rem;
+    border: #53303b 0px solid;
 `
 
 const Puzzle_SideBar_category_li = styled.li`
@@ -61,3 +63,4 @@ const SLink = styled(Link)`
     &:visited{ color: white}
     text-decoration-color: ${props => props.current === 'true' ? "#FA991D" : "#21A598"}
 `
+
