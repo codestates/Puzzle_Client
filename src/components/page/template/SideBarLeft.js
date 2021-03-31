@@ -3,6 +3,7 @@ import { Link, withRouter } from "react-router-dom";
 import styled from 'styled-components';
 
 export default withRouter(({ location: { pathname}}) => {
+    const refreshInfo = JSON.parse(sessionStorage.getItem('projectInfo'))
 
     return(
     <>
@@ -11,11 +12,11 @@ export default withRouter(({ location: { pathname}}) => {
                 <Puzzle_SideBar_category_li>
                     <SLink current={pathname === "/home" ? 'true' : 'false'} to={{pathname: "/home",state:{pathname: 'HOME'}}}> HOME </SLink>
                 </Puzzle_SideBar_category_li>
-
-                <Puzzle_SideBar_category_li>
-                    <SLink current={pathname === "/project" ? 'true' : 'false'} to="/project"> CURRENT<br/> PROJECT</SLink>
-                </Puzzle_SideBar_category_li>
-
+                {refreshInfo && 
+                    <Puzzle_SideBar_category_li>
+                        <SLink current={pathname === "/project" ? 'true' : 'false'} to="/project">PROJECT</SLink>
+                    </Puzzle_SideBar_category_li>
+                }
                 <Puzzle_SideBar_category_li>
                     <SLink current={pathname === "/calendar" ? 'true' : 'false'} to="/calendar"> CALENDAR </SLink>
                 </Puzzle_SideBar_category_li>
@@ -37,7 +38,7 @@ const Puzzle_SideBar_Containers_left = styled.div`
 const Puzzle_SideBar_category_ul = styled.ul`
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
     margin: 0 auto;
     height: 300px;
@@ -51,7 +52,7 @@ const Puzzle_SideBar_category_li = styled.li`
     font-style: normal;
     font-weight: 700;
     color: white;
-    font-size: 2em;
+    font-size: 2.2em;
     text-decoration: underline;
     text-decoration-color: #21A598;
     text-underline-position: under;
@@ -64,3 +65,7 @@ const SLink = styled(Link)`
     text-decoration-color: ${props => props.current === 'true' ? "#FA991D" : "#21A598"}
 `
 
+const SlinkSpan = styled.span`
+    color: white;
+
+`

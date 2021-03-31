@@ -94,6 +94,9 @@ export const Login = ({ setSignUp }) => {
 }
 
 const Login_Containers = styled.div`
+  position: fixed;
+  top: -2em;
+  right: 1em;
   height: 100%;
   width: 800px;
   margin-left:auto;
@@ -101,6 +104,7 @@ const Login_Containers = styled.div`
   align-items: center;
   flex-direction: column;
   float: right;
+  width: 30em;
 `
 
 const Login_Logo = styled.img`
@@ -130,11 +134,10 @@ const Loginbtn = styled.button`
   border-radius: 8px;
   color: white;
   width: 12vw;
-  height: 4vh;
   background-color: #FA991D;
   cursor: pointer;
   outline: none;
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   border: none;
 
   &:hover {

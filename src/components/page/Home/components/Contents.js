@@ -24,8 +24,6 @@ const Contents = (props) => {
   const searchInput = useRef();
   const scroll = useRef();
   const accessToken = sessionStorage.getItem('accessToken')
-  console.log(props)
-
   const openProjectModal = () => {
       setShowNewProject(prev => !prev)
   }
@@ -141,9 +139,8 @@ const Contents = (props) => {
         <ProjectDivContainer ref={scroll} onScroll={handleScroll}>
           {
             props.projectData.map(info => {
-/*               console.log(info.usersData[0].id) //프로젝트 생성자
-              console.log(loginUserInfo.data.id)
- */              return (
+              console.log(info.usersData)
+              return (
                 <ProjectContainer key={info.id} onClick={() => getProjectInfo(info.id)}>
                   <Project >
                     <ProjectUser_Containers >
@@ -161,7 +158,10 @@ const Contents = (props) => {
                     <ProjectDate>생성일: {info.createdAt.slice(0, 10)}</ProjectDate> {/* 날짜 표기 형식에 맞게 변경해야함 */}
                     <ButtonContainer>
                       <ModifyButton onClick={(e) => modifyProject(info, e)}>수정</ModifyButton>
-                      {/* <DeleteButton onClick={(e) => handleDeleteModal(info.id, e)}>삭제</DeleteButton> */}
+                      {
+                        info.usersData.length === 1 ?
+                          <DeleteButton onClick={(e) => handleDeleteModal(info.id, e)}>삭제</DeleteButton> : null
+                      }
                     </ButtonContainer>
                   </Project>
                 </ProjectContainer>
@@ -186,7 +186,7 @@ const Contents = (props) => {
         showDeleteModal ?
         <DeleteModal>
           <DeleteMainMessage>해당 프로젝트를 삭제하시겠습니까?</DeleteMainMessage>
-          <DeleteSubMessage>다른 팀원들이 있는 프로젝트라면 해당 프로젝트에서 탈퇴합니다.</DeleteSubMessage>
+          <DeleteSubMessage>삭제한 프로젝트는 다시 복구할 수 없습니다</DeleteSubMessage>
           <DeleteBtnContainer>
             <DeleteYesBtn onClick={deleteProject}>예</DeleteYesBtn>
             <DeleteNoBtn onClick={() => {setShowDeleteModal(prev => !prev)}}>아니오</DeleteNoBtn>

@@ -46,7 +46,7 @@ const Landing = () => {
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 3000,
+    autoplaySpeed: 4500,
     arrows: true,
   };
 
@@ -56,29 +56,27 @@ const Landing = () => {
         <div>
           <LandingBackgroundImg>
             <Text_Containers>
-              <Text_Header>퍼즐 한 조각 = 업무카드 하나</Text_Header>
-              <Text>퍼즐 한 조각은 업무카드 하나입니다</Text>
-              <Text>업무를 완료하면 퍼즐 조각 하나가 맞춰집니다</Text>
-              <Text>팀원끼리 업무 진척도를 퍼즐 개수로 설명해 줄 수 있습니다</Text>
-              <Text>업무카드에 코멘트를 달아서 피드백을 줄 수 있습니다</Text>
+              <Text_Header>이미지 = 프로젝트 </Text_Header>
+              <Text>프로젝트 진척도에 따라 퍼즐이미지가 완성됩니다</Text>
+              <Text>프로젝트별, 스프린트 별로 상징하는 이미지를 생성하세요</Text>
+              <Text>이미지가 프로젝트 진척도에 따라 퍼즐처럼 맞춰집니다</Text>
+              <Text>프로젝트 진척도를 쉽고 재미있게 파악할 수 있습니다</Text>
             </Text_Containers>
           </LandingBackgroundImg>
         </div>
         <div>
           <LandingBackgroundImg2>
           <Text_Containers>
-              <Text_Header>퍼즐 = 프로젝트 </Text_Header>
-              <Text>프로젝트 진척도에 따라 퍼즐이 완성됩니다</Text>
-              <Text>프로젝트별, 스프린트 별로 상징하는 이미지를 생성하세요</Text>
-              <Text>이미지가 프로젝트 진척도에 따라 퍼즐처럼 맞춰집니다</Text>
-              <Text>프로젝트 진척도를 쉽고 재미있게 파악할 수 있습니다</Text>
-            </Text_Containers>
+            <Text_Header>퍼즐 조각 = 업무카드</Text_Header>
+            <Text>할일을 업무카드로 작성해보세요</Text>
+            <Text>업무카드 하나를 완료하면 퍼즐이 맞춰집니다</Text>
+          </Text_Containers>
           </LandingBackgroundImg2>
         </div>
         <div>
           <LandingBackgroundImg3>
           <Text_Containers>
-              <Text_Header>업무기록 = 캘린더</Text_Header>
+              <Text_Header>캘린더 = 업무기록</Text_Header>
               <Text>캘린더를 통해 팀원 전체의 업무기록을 확인해보세요</Text>
               <Text>요일별로 정리된 업무기록을 확인할 수 있습니다</Text>
               <Text>정리된 업무기록을 공유해보세요</Text>
@@ -156,18 +154,22 @@ const Text_Containers = styled.div`
 `
 
 const Text_Header = styled.div`
-  color:white;
+  color:black;
   font-family: 'Roboto';
   font-style: normal;
   font-weight: 700;
   font-size: 5em;
   margin-bottom: 100px;
+  text-shadow: -2px 0 white, 0 2px white, 2px 0 white, 0 -2px white;
+  -moz-text-shadow: -2px 0 #F2F1F6, 0 2px #F2F1F6, 2px 0 #F2F1F6, 0 -2px #F2F1F6;
+  -webkit-text-shadow: -12px 0 #F2F1F6, 0 2px #F2F1F6, 2px 0 #F2F1F6, 0 -2px #F2F1F6;
+
 `
 
 const Text = styled.div`
 color:white;
 font-family: 'Roboto';
-font-style: normal;
+font-style: italic;
 font-weight: 500;
 font-size: 2em;
 margin-bottom: 50px;

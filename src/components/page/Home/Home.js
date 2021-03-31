@@ -14,8 +14,9 @@ import Contents from './components/Contents'
 import background_img from '../../../images/background/background.jpg'
 
 const Home = (props) => {
+  const refreshInfo = JSON.parse(sessionStorage.getItem('projectInfo'))
 
-  const [projectData, setProjectData] = useState(() => JSON.parse(window.localStorage.getItem("projectData")) || [] );
+  const [projectData, setProjectData] = useState(refreshInfo);
   const [loading, setLoading] = useState(true);
 
   const accessToken = sessionStorage.getItem('accessToken')
@@ -30,7 +31,6 @@ const Home = (props) => {
       let {projects} = res.data;
       setProjectData(projects)
       setLoading(false);
-      console.log(projects)
     })
     .catch(err => console.err(err))
   }, [])
