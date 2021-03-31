@@ -30,6 +30,8 @@ const ProjectContent = (props) => {
           result++
         }
       })
+    }else if (!refreshInfo) {
+
     }else {
       props.projectInfo.project.puzzlesInfo.map(finished => {
       if (finished.isFinish === 1) {
@@ -151,14 +153,6 @@ const ProjectContent = (props) => {
     setShowPuzzleSet(prev => !prev)
   }
   
-/*   
-  const block = document.getElementById("puzzle52");
-  const block1 = document.getElementById("puzzle57");
-  const block2 = document.getElementById("puzzle84")
-  block.style.zIndex = 2;
-  block1.style.zIndex = 2;
-  block2.style.zIndex = 2;
- */
 
   return (
     <ProjectContent_Container ref={scroll} onScroll={handleScroll}>

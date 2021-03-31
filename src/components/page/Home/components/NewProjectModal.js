@@ -2,11 +2,13 @@ import React, { useRef, useEffect, useCallback, useState } from 'react'
 import { useSpring, animated } from 'react-spring'
 import styled from 'styled-components'
 import Img from '../../../../images/icon/img.jpg'
+import SqueredImg from '../../../page/Landing/Img/Puzzle_Logo_ Square.png'
 import { MdClose } from 'react-icons/md'
 import axios from 'axios'
 
 export const NewProjectModal = ({ showNewProject, setShowNewProject }) => {
-  const modalRef = useRef()
+  const modalRef = useRef();
+  const imageSrc = useRef();
   const [usercode, setUsercode] = useState('')
   const [projectInfo, setProjectInfo] = useState({
     description: '',
@@ -151,6 +153,9 @@ export const NewProjectModal = ({ showNewProject, setShowNewProject }) => {
     .catch(err => console.err(err))
   }
 
+  const handleImgError = e => {
+    imageSrc.current.src = SqueredImg; 
+  }
   return (
     <>
       {showNewProject ? (
@@ -160,7 +165,7 @@ export const NewProjectModal = ({ showNewProject, setShowNewProject }) => {
             <ModalWrapper showNewProject={showNewProject}>
               <Title>프로젝트 생성</Title>
               <ImageContainer >
-                <ProjectListImg src={projectInfo.imageUrl} onError="this.style.display='none'"/>
+                <ProjectListImg ref={imageSrc} src={projectInfo.imageUrl} onError={handleImgError} />
                   <ImageLabel htmlFor="Project_Img_Select">
                     프로젝트 이미지 업로드
                   </ImageLabel>
@@ -312,7 +317,7 @@ const Title = styled.div`
 `
 const ProjectListImg = styled.img`
   display: block;
-  background-image: url(${Img});
+  background-image: url(${SqueredImg});
   width: 13em;
   height: 13em;
   border-radius: 5%;

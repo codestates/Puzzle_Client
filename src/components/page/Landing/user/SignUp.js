@@ -114,6 +114,11 @@ export const SignUp = ({ setSignUp }) => {
 }
 
 const SignUp_Containers = styled.div`
+  position: fixed;
+  top: 8em;
+  right: -2.5em;
+  width: 30em;
+
   height: 100%;
   width: 800px;
   margin-left:auto;
@@ -124,6 +129,9 @@ const SignUp_Containers = styled.div`
 `
 
 const Login_Logo = styled.img`
+  position: absolute;
+  top: -10em;
+  right: 16em;
   width: 80px;
   height: 80px;
   margin: 150px 0px 300px 0px;
